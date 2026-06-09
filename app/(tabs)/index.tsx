@@ -184,10 +184,10 @@ export default function HomeScreen() {
   };
 
   const saveRoutine = async () => {
-    if (title.trim() === '' || duration.trim() === '') {
-      Alert.alert('入力エラー', 'タイトルと時間/回数を入力してください。');
-      return;
-    }
+    if (title.trim() === '') {
+  Alert.alert('入力エラー', 'タイトルを入力してください。');
+  return;
+}
 
     const newRoutine: Routine = {
       id: editingRoutine ? editingRoutine.id : Date.now().toString(),
@@ -338,7 +338,7 @@ export default function HomeScreen() {
                         <Text style={[styles.routineTitle, isCompleted && styles.routineTitleCompleted]}>{routine.title}</Text>
                         <Text style={styles.routineDetail}>
                           {routine.location ? `📍 ${routine.location}　` : ''}
-                          ⏱ {routine.duration}{routine.unit === 'minutes' ? '分' : '回'}　🔁 {getRepeatLabel(routine)}
+                         {routine.duration ? `🔢 ${routine.duration}回　` : ''}🔁 {getRepeatLabel(routine)}
                         </Text>
                       </View>
                     </View>
@@ -438,18 +438,16 @@ export default function HomeScreen() {
                   <Text style={styles.modalLabel}>場所（任意）</Text>
                   <TextInput style={styles.modalInput} placeholder="例：リビング、ジム、デスク..." value={location} onChangeText={setLocation} returnKeyType="next" />
 
-                  {/* 時間/回数 */}
-                  <Text style={styles.modalLabel}>時間 / 回数</Text>
-                  <View style={styles.durationRow}>
-                    <TextInput style={[styles.modalInput, { flex: 1, marginRight: 10 }]} placeholder="例：30" value={duration} onChangeText={setDuration} keyboardType="numeric" returnKeyType="done" />
-                    <View style={styles.unitSelector}>
-                      {UNIT_OPTIONS.map(u => (
-                        <TouchableOpacity key={u.key} style={[styles.unitButton, unit === u.key && styles.unitButtonActive]} onPress={() => setUnit(u.key as any)}>
-                          <Text style={[styles.unitText, unit === u.key && styles.unitTextActive]}>{u.label}</Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
-                  </View>
+                  {/* 回数（任意） */}
+<Text style={styles.modalLabel}>回数（任意）</Text>
+<TextInput
+  style={styles.modalInput}
+  placeholder="例：30回、10回など（不要な場合は空白）"
+  value={duration}
+  onChangeText={setDuration}
+  keyboardType="numeric"
+  returnKeyType="done"
+/>
 
                   {/* 繰り返し */}
                   <Text style={styles.modalLabel}>繰り返し</Text>
