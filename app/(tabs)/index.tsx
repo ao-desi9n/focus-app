@@ -254,11 +254,7 @@ export default function HomeScreen() {
   const dateKey = getDateKey(selectedDate);
   const completedToday = completedMap[dateKey] || [];
 
-  const visibleRoutines = routines.filter(routine => {
-    const createdStr = createdDates[routine.id];
-    const created = createdStr ? new Date(createdStr.replace(/-/g, '/')) : new Date();
-    return shouldShowRoutine(routine, selectedDate, created);
-  });
+const visibleRoutines = routines;
 
   const completedCount = completedToday.filter(id => visibleRoutines.some(r => r.id === id)).length;
   const totalCount = visibleRoutines.length;
@@ -503,7 +499,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: 'bold', color: COLORS.text },
   progressBadge: { backgroundColor: COLORS.primary + '20', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: COLORS.primary },
   progressText: { fontSize: 13, fontWeight: 'bold', color: COLORS.primary },
-  dateScroll: { marginBottom: 16 },
+dateScroll: { maxHeight: 90, marginBottom: 8 },
   dateScrollContent: { paddingHorizontal: 20, gap: 8 },
   dateButton: { width: 52, height: 68, borderRadius: 14, backgroundColor: COLORS.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.border },
   dateButtonSelected: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
@@ -512,7 +508,7 @@ const styles = StyleSheet.create({
   dateDateText: { fontSize: 20, fontWeight: 'bold', color: COLORS.text },
   dateTextSelected: { color: '#fff' },
   todayDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.primary, marginTop: 4 },
-  timeline: { flex: 1, paddingHorizontal: 20 },
+ timeline: { flex: 1, paddingHorizontal: 20, marginTop: 0 },
   timelineItem: { flexDirection: 'row', marginBottom: 12 },
   timeColumn: { width: 52, alignItems: 'center', paddingTop: 4 },
   timeText: { fontSize: 12, color: COLORS.text, fontWeight: '700' },
