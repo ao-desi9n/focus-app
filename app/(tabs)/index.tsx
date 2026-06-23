@@ -124,15 +124,47 @@ export default function HomeScreen() {
     setCreatedDates(newCreatedDates);
   };
 
-  const toggleComplete = async (id: string) => {
+const toggleComplete = async (id: string) => {
     const dateKey = getDateKey(selectedDate);
     const current = completedMap[dateKey] || [];
+    const isCompleting = !current.includes(id);
     const newCompleted = current.includes(id)
       ? current.filter(r => r !== id)
       : [...current, id];
     const newMap = { ...completedMap, [dateKey]: newCompleted };
     await AsyncStorage.setItem('completedMap', JSON.stringify(newMap));
     setCompletedMap(newMap);
+
+    if (isCompleting) {
+      await addExp(10);
+    }
+  };
+
+  const addExp = async (amount: number) => {
+    const savedLevel = await AsyncStorage.getItem('charLevel');
+    const savedExp = await AsyncStorage.getItem('charExp');
+    const savedCoins = await AsyncStorage.getItem('coins');
+
+    let level = savedLevel ? parseInt(savedLevel) : 1;
+    let exp = (savedExp ? parseInt(savedExp) : 0) + amount;
+    let coins = savedCoins ? parseInt(savedCoins) : 0;
+
+    const MAX_LEVEL = 20;
+    const EXP_PER_LEVEL = 100;
+
+    while (exp >= EXP_PER_LEVEL && level < MAX_LEVEL) {
+      exp -= EXP_PER_LEVEL;
+      level += 1;
+      coins += 20; // レベルアップでコイン獲得
+    }
+
+    if (level >= MAX_LEVEL) {
+      exp = EXP_PER_LEVEL; // MAX表示用
+    }
+
+    await AsyncStorage.setItem('charLevel', level.toString());
+    await AsyncStorage.setItem('charExp', exp.toString());
+    await AsyncStorage.setItem('coins', coins.toString());
   };
 
   const formatTime = (date: Date) => {
