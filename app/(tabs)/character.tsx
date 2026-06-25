@@ -17,6 +17,13 @@ const COLORS = {
 };
 
 const MAX_LEVEL = 20;
+const STREAK_ITEMS = [
+  { id: 'hat', name: '帽子', emoji: '🎩', daysRequired: 3 },
+  { id: 'bowtie', name: 'リボン', emoji: '🎀', daysRequired: 7 },
+  { id: 'cape', name: 'マント', emoji: '🦸', daysRequired: 14 },
+  { id: 'crown', name: '王冠', emoji: '👑', daysRequired: 21 },
+  { id: 'medal', name: '金メダル', emoji: '🏅', daysRequired: 30 },
+];
 const EXP_PER_LEVEL = 100;
 
 type Animal = {
@@ -72,6 +79,9 @@ export default function CharacterScreen() {
   const [coins, setCoins] = useState(0);
   const [showMaxLevelModal, setShowMaxLevelModal] = useState(false);
   const [showGachaResult, setShowGachaResult] = useState<Animal | null>(null);
+  const [unlockedStreakItems, setUnlockedStreakItems] = useState<string[]>([]);
+　const [equippedItem, setEquippedItem] = useState<string | null>(null);
+　const [showStreakUnlock, setShowStreakUnlock] = useState<{ emoji: string; name: string } | null>(null);
   const bounceAnim = useRef(new Animated.Value(0)).current;
 
   useFocusEffect(
@@ -96,12 +106,54 @@ export default function CharacterScreen() {
     const savedLevel = await AsyncStorage.getItem('charLevel');
     const savedExp = await AsyncStorage.getItem('charExp');
     const savedCoins = await AsyncStorage.getItem('coins');
+    const savedStreakItems = await AsyncStorage.getItem('unlockedStreakItems');
+    const savedEquipped = await AsyncStorage.getItem('equippedItem');
 
     setCurrentAnimalId(savedAnimalId || 'dog');
     setUnlockedAnimals(savedUnlocked ? JSON.parse(savedUnlocked) : ['dog']);
     setLevel(savedLevel ? parseInt(savedLevel) : 1);
     setExp(savedExp ? parseInt(savedExp) : 0);
     setCoins(savedCoins ? parseInt(savedCoins) : 0);
+    setUnlockedStreakItems(savedStreakItems ? JSON.parse(savedStreakItems) : []);
+    setEquippedItem(savedEquipped || null);
+
+    await checkStreakItems();
+  };
+
+  const checkStreakItems = async () => {
+    const savedCompleted = await AsyncStorage.getItem('completedMap');
+    const savedRoutines = await AsyncStorage.getItem('routines');
+    const completedMap = savedCompleted ? JSON.parse(savedCompleted) : {};
+    const routines = savedRoutines ? JSON.parse(savedRoutines) : [];
+
+    if (routines.length === 0) return;
+
+    let streak = 0;
+    const today = new Date();
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+      const completed = completedMap[key] || [];
+      if (completed.length > 0) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
+    }
+
+    const savedStreakItems = await AsyncStorage.getItem('unlockedStreakItems');
+    const unlocked = savedStreakItems ? JSON.parse(savedStreakItems) : [];
+
+    for (const item of STREAK_ITEMS) {
+      if (streak >= item.daysRequired && !unlocked.includes(item.id)) {
+        const newUnlocked = [...unlocked, item.id];
+        await AsyncStorage.setItem('unlockedStreakItems', JSON.stringify(newUnlocked));
+        setUnlockedStreakItems(newUnlocked);
+        setShowStreakUnlock({ emoji: item.emoji, name: item.name });
+        break;
+      }
+    }
   };
 
   const currentAnimal = ALL_ANIMALS.find(a => a.id === currentAnimalId) || ALL_ANIMALS[0];
@@ -156,9 +208,16 @@ export default function CharacterScreen() {
           <View style={[styles.rarityTag, { backgroundColor: RARITY_COLORS[currentAnimal.rarity] }]}>
             <Text style={styles.rarityTagText}>{currentAnimal.rarity.toUpperCase()}</Text>
           </View>
-          <Animated.Text style={[styles.characterEmoji, { transform: [{ translateY: bounceAnim }] }]}>
-            {currentAnimal.emoji}
-          </Animated.Text>
+          <View style={styles.characterWithItem}>
+  <Animated.Text style={[styles.characterEmoji, { transform: [{ translateY: bounceAnim }] }]}>
+    {currentAnimal.emoji}
+  </Animated.Text>
+  {equippedItem && (
+    <Text style={styles.equippedItemEmoji}>
+      {STREAK_ITEMS.find(i => i.id === equippedItem)?.emoji}
+    </Text>
+  )}
+</View>
           <Text style={styles.characterName}>{currentAnimal.name}</Text>
 
           {isMaxLevel ? (
@@ -201,6 +260,37 @@ export default function CharacterScreen() {
         <View style={{ height: 30 }} />
       </ScrollView>
 
+      {/* ストリークアイテム */}
+<View style={[styles.card, { marginTop: 16 }]}>
+  <Text style={styles.cardTitle}>🎁 ストリークアイテム（{unlockedStreakItems.length}/{STREAK_ITEMS.length}）</Text>
+  <View style={styles.animalGrid}>
+    {STREAK_ITEMS.map(item => {
+      const isUnlocked = unlockedStreakItems.includes(item.id);
+      const isEquipped = equippedItem === item.id;
+      return (
+        <TouchableOpacity
+          key={item.id}
+          style={[
+            styles.animalOption,
+            isEquipped && styles.animalOptionSelected,
+            { borderColor: isUnlocked ? COLORS.primary : COLORS.border, opacity: isUnlocked ? 1 : 0.4 }
+          ]}
+          disabled={!isUnlocked}
+          onPress={async () => {
+            const newEquipped = isEquipped ? null : item.id;
+            await AsyncStorage.setItem('equippedItem', newEquipped || '');
+            setEquippedItem(newEquipped);
+          }}
+        >
+          <Text style={styles.animalOptionEmoji}>{isUnlocked ? item.emoji : '🔒'}</Text>
+          {isEquipped && <Text style={styles.selectedLabel}>装着中</Text>}
+        </TouchableOpacity>
+      );
+    })}
+  </View>
+  <Text style={styles.streakHint}>ストリークを継続してアイテムをアンロックしよう！</Text>
+</View>
+
       {/* MAXレベル選択モーダル */}
       <Modal visible={showMaxLevelModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
@@ -242,6 +332,24 @@ export default function CharacterScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* ストリークアイテム解放モーダル */}
+<Modal visible={!!showStreakUnlock} transparent animationType="fade">
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalCard}>
+      {showStreakUnlock && (
+        <>
+          <Text style={styles.gachaResultEmoji}>{showStreakUnlock.emoji}</Text>
+          <Text style={styles.modalTitle}>{showStreakUnlock.name}をアンロック！</Text>
+          <Text style={styles.modalSubtitle}>ストリーク継続のごほうび🎉</Text>
+          <TouchableOpacity style={styles.modalGachaButton} onPress={() => setShowStreakUnlock(null)}>
+            <Text style={styles.modalGachaButtonText}>やったー！</Text>
+          </TouchableOpacity>
+        </>
+      )}
+    </View>
+  </View>
+</Modal>
     </View>
   );
 }
@@ -282,4 +390,7 @@ const styles = StyleSheet.create({
   modalSelectButton: { borderRadius: 14, padding: 16, width: '100%', alignItems: 'center', borderWidth: 1, borderColor: COLORS.border },
   modalSelectButtonText: { color: COLORS.textLight, fontWeight: '600', fontSize: 15 },
   gachaResultEmoji: { fontSize: 80, marginBottom: 12 },
+  characterWithItem: { position: 'relative', alignItems: 'center' },
+equippedItemEmoji: { fontSize: 36, position: 'absolute', top: -20 },
+streakHint: { fontSize: 11, color: COLORS.textLight, marginTop: 10, textAlign: 'center' },
 });

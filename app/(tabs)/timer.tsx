@@ -176,14 +176,54 @@ export default function TimerScreen() {
       await AsyncStorage.setItem('completedMap', JSON.stringify(completedMap));
       setCompletedToday(newCompleted);
 
+      const elapsedMinutes = Math.floor(elapsedSeconds / 60);
       const savedTotal = await AsyncStorage.getItem('totalTime');
-      const newTotal = (savedTotal ? parseInt(savedTotal) : 0) + Math.floor(elapsedSeconds / 60);
+      const previousTotal = savedTotal ? parseInt(savedTotal) : 0;
+      const newTotal = previousTotal + elapsedMinutes;
       await AsyncStorage.setItem('totalTime', newTotal.toString());
+
+      // タスク完了の経験値
+      await addExp(10);
+
+      // 累計時間の経験値（1時間ごとに+5、新たに超えた時間分だけ加算）
+      const previousHours = Math.floor(previousTotal / 60);
+      const newHours = Math.floor(newTotal / 60);
+      const hoursPassed = newHours - previousHours;
+      if (hoursPassed > 0) {
+        await addExp(hoursPassed * 5);
+      }
     }
 
     Alert.alert('🎉 完了！', `${selectedRoutine.title}を達成しました！`, [
       { text: '次へ', onPress: () => { setSelectedRoutine(null); setIsRunning(false); } }
     ]);
+  };
+
+  const addExp = async (amount: number) => {
+    const savedLevel = await AsyncStorage.getItem('charLevel');
+    const savedExp = await AsyncStorage.getItem('charExp');
+    const savedCoins = await AsyncStorage.getItem('coins');
+
+    let level = savedLevel ? parseInt(savedLevel) : 1;
+    let exp = (savedExp ? parseInt(savedExp) : 0) + amount;
+    let coins = savedCoins ? parseInt(savedCoins) : 0;
+
+    const MAX_LEVEL = 20;
+    const EXP_PER_LEVEL = 100;
+
+    while (exp >= EXP_PER_LEVEL && level < MAX_LEVEL) {
+      exp -= EXP_PER_LEVEL;
+      level += 1;
+      coins += 20;
+    }
+
+    if (level >= MAX_LEVEL) {
+      exp = EXP_PER_LEVEL;
+    }
+
+    await AsyncStorage.setItem('charLevel', level.toString());
+    await AsyncStorage.setItem('charExp', exp.toString());
+    await AsyncStorage.setItem('coins', coins.toString());
   };
 
   const handleLowMotivation = () => {
