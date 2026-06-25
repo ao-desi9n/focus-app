@@ -4,13 +4,13 @@ import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 const COLORS = {
-  background: '#F8F9FA',
-  card: '#FFFFFF',
-  primary: '#6C63FF',
-  text: '#2D3436',
-  textLight: '#636E72',
-  border: '#DFE6E9',
-  silhouette: '#DFE6E9',
+  background: '#0F0F14',
+  card: '#1A1A22',
+  primary: '#7C5CFF',
+  text: '#F2F2F7',
+  textLight: '#8E8E9A',
+  border: '#2A2A35',
+  silhouette: '#2A2A35',
 };
 
 type Animal = {

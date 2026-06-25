@@ -5,19 +5,20 @@ import { useCallback, useState } from 'react';
 import { Alert, Keyboard, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 const COLORS = {
-  background: '#F8F9FA',
-  card: '#FFFFFF',
-  primary: '#6C63FF',
-  primaryLight: '#A89CFF',
-  text: '#2D3436',
-  textLight: '#636E72',
-  border: '#DFE6E9',
-  success: '#00B894',
-  danger: '#FF7675',
-  morning: '#FFB300',
-  afternoon: '#43A047',
-  evening: '#1E88E5',
-  reward: '#E53935',
+  background: '#0F0F14',
+  card: '#1A1A22',
+  primary: '#7C5CFF',
+  primaryLight: '#9D85FF',
+  text: '#F2F2F7',
+  textLight: '#8E8E9A',
+  border: '#2A2A35',
+  success: '#00D9A5',
+  warning: '#FFB84D',
+  danger: '#FF5C7A',
+  morning: '#FFB84D',
+  afternoon: '#00D9A5',
+  evening: '#5C9EFF',
+  reward: '#FF5C7A',
 };
 
 type RepeatType = 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'interval';

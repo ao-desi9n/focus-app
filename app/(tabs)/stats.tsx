@@ -4,17 +4,17 @@ import { useCallback, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 const COLORS = {
-  background: '#F8F9FA',
-  card: '#FFFFFF',
-  primary: '#6C63FF',
-  text: '#2D3436',
-  textLight: '#636E72',
-  border: '#DFE6E9',
-  success: '#00B894',
-  warning: '#FDCB6E',
-  morning: '#FFB300',
-  afternoon: '#43A047',
-  evening: '#1E88E5',
+  background: '#0F0F14',
+  card: '#1A1A22',
+  primary: '#7C5CFF',
+  text: '#F2F2F7',
+  textLight: '#8E8E9A',
+  border: '#2A2A35',
+  success: '#00D9A5',
+  warning: '#FFB84D',
+  morning: '#FFB84D',
+  afternoon: '#00D9A5',
+  evening: '#5C9EFF',
 };
 
 const DAYS = ['月', '火', '水', '木', '金', '土', '日'];
