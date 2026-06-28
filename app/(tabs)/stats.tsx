@@ -11,7 +11,7 @@ const getDateKey = (date: Date) =>
   `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
 export default function StatsScreen() {
-    const { theme: COLORS } = useTheme();
+const { theme: COLORS } = useTheme();
   const [totalTime, setTotalTime] = useState(0);
   const [weeklyTime, setWeeklyTime] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [totalCompleted, setTotalCompleted] = useState(0);
