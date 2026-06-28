@@ -3,23 +3,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Keyboard, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-
-const COLORS = {
-  background: '#0F0F14',
-  card: '#1A1A22',
-  primary: '#7C5CFF',
-  primaryLight: '#9D85FF',
-  text: '#F2F2F7',
-  textLight: '#8E8E9A',
-  border: '#2A2A35',
-  success: '#00D9A5',
-  warning: '#FFB84D',
-  danger: '#FF5C7A',
-  morning: '#FFB84D',
-  afternoon: '#00D9A5',
-  evening: '#5C9EFF',
-  reward: '#FF5C7A',
-};
+import { useTheme } from '../theme';
 
 type RepeatType = 'once' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'interval';
 
@@ -36,13 +20,6 @@ type Routine = {
   repeatType: RepeatType;
   repeatInterval: number;
 };
-
-const TIME_OF_DAY = [
-  { key: 'morning', label: '☀️ 朝', color: COLORS.morning },
-  { key: 'afternoon', label: '🌤 昼', color: COLORS.afternoon },
-  { key: 'evening', label: '🌙 夜', color: COLORS.evening },
-  { key: 'reward', label: '🎁 ご褒美', color: COLORS.reward },
-];
 
 const UNIT_OPTIONS = [
   { key: 'minutes', label: '分' },
@@ -85,6 +62,14 @@ const shouldShowRoutine = (routine: Routine, date: Date, createdDate: Date) => {
 };
 
 export default function HomeScreen() {
+  const { theme: COLORS } = useTheme();
+
+const TIME_OF_DAY = [
+    { key: 'morning', label: '☀️ 朝', color: COLORS.morning },
+    { key: 'afternoon', label: '🌤 昼', color: COLORS.afternoon },
+    { key: 'evening', label: '🌙 夜', color: COLORS.evening },
+    { key: 'reward', label: '🎁 ご褒美', color: COLORS.reward },
+  ];
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
@@ -125,7 +110,7 @@ export default function HomeScreen() {
     setCreatedDates(newCreatedDates);
   };
 
-const toggleComplete = async (id: string) => {
+  const toggleComplete = async (id: string) => {
     const dateKey = getDateKey(selectedDate);
     const current = completedMap[dateKey] || [];
     const isCompleting = !current.includes(id);
@@ -218,9 +203,9 @@ const toggleComplete = async (id: string) => {
 
   const saveRoutine = async () => {
     if (title.trim() === '') {
-  Alert.alert('入力エラー', 'タイトルを入力してください。');
-  return;
-}
+      Alert.alert('入力エラー', 'タイトルを入力してください。');
+      return;
+    }
 
     const newRoutine: Routine = {
       id: editingRoutine ? editingRoutine.id : Date.now().toString(),
@@ -287,7 +272,7 @@ const toggleComplete = async (id: string) => {
   const dateKey = getDateKey(selectedDate);
   const completedToday = completedMap[dateKey] || [];
 
-const visibleRoutines = routines;
+  const visibleRoutines = routines;
 
   const completedCount = completedToday.filter(id => visibleRoutines.some(r => r.id === id)).length;
   const totalCount = visibleRoutines.length;
@@ -305,7 +290,7 @@ const visibleRoutines = routines;
       case 'interval': return `${routine.repeatInterval}日ごと`;
     }
   };
-
+  const styles = getStyles(COLORS);
   return (
     <View style={styles.container}>
       {/* ヘッダー */}
@@ -367,7 +352,7 @@ const visibleRoutines = routines;
                         <Text style={[styles.routineTitle, isCompleted && styles.routineTitleCompleted]}>{routine.title}</Text>
                         <Text style={styles.routineDetail}>
                           {routine.location ? `📍 ${routine.location}　` : ''}
-                         {routine.duration ? `🔢 ${routine.duration}回　` : ''}🔁 {getRepeatLabel(routine)}
+                          {routine.duration ? `🔢 ${routine.duration}回　` : ''}🔁 {getRepeatLabel(routine)}
                         </Text>
                       </View>
                     </View>
@@ -468,15 +453,15 @@ const visibleRoutines = routines;
                   <TextInput style={styles.modalInput} placeholder="例：リビング、ジム、デスク..." value={location} onChangeText={setLocation} returnKeyType="next" />
 
                   {/* 回数（任意） */}
-<Text style={styles.modalLabel}>回数（任意）</Text>
-<TextInput
-  style={styles.modalInput}
-  placeholder="例：30回、10回など（不要な場合は空白）"
-  value={duration}
-  onChangeText={setDuration}
-  keyboardType="numeric"
-  returnKeyType="done"
-/>
+                  <Text style={styles.modalLabel}>回数（任意）</Text>
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="例：30回、10回など（不要な場合は空白）"
+                    value={duration}
+                    onChangeText={setDuration}
+                    keyboardType="numeric"
+                    returnKeyType="done"
+                  />
 
                   {/* 繰り返し */}
                   <Text style={styles.modalLabel}>繰り返し</Text>
@@ -525,14 +510,14 @@ const visibleRoutines = routines;
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (COLORS: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingHorizontal: 20, marginTop: 50, marginBottom: 16 },
   subtitle: { fontSize: 13, color: COLORS.textLight, marginBottom: 2 },
   title: { fontSize: 26, fontWeight: 'bold', color: COLORS.text },
   progressBadge: { backgroundColor: COLORS.primary + '20', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 8, borderWidth: 1, borderColor: COLORS.primary },
   progressText: { fontSize: 13, fontWeight: 'bold', color: COLORS.primary },
-dateScroll: { maxHeight: 90, marginBottom: 8 },
+  dateScroll: { maxHeight: 90, marginBottom: 8 },
   dateScrollContent: { paddingHorizontal: 20, gap: 8 },
   dateButton: { width: 52, height: 68, borderRadius: 14, backgroundColor: COLORS.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.border },
   dateButtonSelected: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
@@ -541,7 +526,7 @@ dateScroll: { maxHeight: 90, marginBottom: 8 },
   dateDateText: { fontSize: 20, fontWeight: 'bold', color: COLORS.text },
   dateTextSelected: { color: '#fff' },
   todayDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.primary, marginTop: 4 },
- timeline: { flex: 1, paddingHorizontal: 20, marginTop: 0 },
+  timeline: { flex: 1, paddingHorizontal: 20, marginTop: 0 },
   timelineItem: { flexDirection: 'row', marginBottom: 12 },
   timeColumn: { width: 52, alignItems: 'center', paddingTop: 4 },
   timeText: { fontSize: 12, color: COLORS.text, fontWeight: '700' },
