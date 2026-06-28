@@ -2,20 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
-
-const COLORS = {
-  background: '#0F0F14',
-  card: '#1A1A22',
-  primary: '#7C5CFF',
-  text: '#F2F2F7',
-  textLight: '#8E8E9A',
-  border: '#2A2A35',
-  success: '#00D9A5',
-  warning: '#FFB84D',
-  morning: '#FFB84D',
-  afternoon: '#00D9A5',
-  evening: '#5C9EFF',
-};
+import { useTheme } from '../theme';
 
 const DAYS = ['月', '火', '水', '木', '金', '土', '日'];
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -24,6 +11,7 @@ const getDateKey = (date: Date) =>
   `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
 export default function StatsScreen() {
+    const { theme: COLORS } = useTheme();
   const [totalTime, setTotalTime] = useState(0);
   const [weeklyTime, setWeeklyTime] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [totalCompleted, setTotalCompleted] = useState(0);
@@ -114,7 +102,7 @@ export default function StatsScreen() {
   };
 
   const motivation = getMotivationMessage();
-
+　const styles = getStyles(COLORS);
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* ヘッダー */}
@@ -206,7 +194,7 @@ export default function StatsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (COLORS: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background, padding: 20 },
   header: { marginTop: 50, marginBottom: 20 },
   subtitle: { fontSize: 13, color: COLORS.textLight, marginBottom: 2 },
