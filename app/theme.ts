@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 
 export type ThemeName = 'light' | 'dark' | 'pastel' | 'vivid';
 
@@ -114,9 +115,11 @@ export const useTheme = () => {
     }
   }, []);
 
-  useEffect(() => {
-    loadTheme();
-  }, [loadTheme]);
+  useFocusEffect(
+    useCallback(() => {
+      loadTheme();
+    }, [loadTheme])
+  );
 
   const changeTheme = async (name: ThemeName) => {
     await AsyncStorage.setItem('appTheme', name);
