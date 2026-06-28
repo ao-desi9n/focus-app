@@ -2,22 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-const COLORS = {
-  background: '#0F0F14',
-  card: '#1A1A22',
-  primary: '#7C5CFF',
-  text: '#F2F2F7',
-  textLight: '#8E8E9A',
-  border: '#2A2A35',
-  success: '#00D9A5',
-  danger: '#FF5C7A',
-  warning: '#FFB84D',
-  morning: '#FFB84D',
-  afternoon: '#00D9A5',
-  evening: '#5C9EFF',
-  reward: '#FF5C7A',
-};
+import { useTheme } from '../theme';
 
 type Routine = {
   id: string;
@@ -33,18 +18,8 @@ type Routine = {
   repeatInterval: number;
 };
 
-const TIME_OF_DAY = [
-  { key: 'morning', label: '☀️ 朝', color: COLORS.morning },
-  { key: 'afternoon', label: '🌤 昼', color: COLORS.afternoon },
-  { key: 'evening', label: '🌙 夜', color: COLORS.evening },
-  { key: 'reward', label: '🎁 ご褒美', color: COLORS.reward },
-];
-
 const getDateKey = (date: Date) =>
   `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-
-const getTimeOfDayColor = (tod: string) =>
-  TIME_OF_DAY.find(t => t.key === tod)?.color || COLORS.primary;
 
 const timeStringToMinutes = (timeStr: string) => {
   if (!timeStr) return 0;
@@ -66,6 +41,16 @@ const formatTime = (seconds: number) => {
 const SHORT_DURATIONS = [5, 10, 15, 20, 30];
 
 export default function TimerScreen() {
+    const { theme: COLORS } = useTheme();
+
+  const TIME_OF_DAY = [
+    { key: 'morning', label: '☀️ 朝', color: COLORS.morning },
+    { key: 'afternoon', label: '🌤 昼', color: COLORS.afternoon },
+    { key: 'evening', label: '🌙 夜', color: COLORS.evening },
+    { key: 'reward', label: '🎁 ご褒美', color: COLORS.reward },
+  ];
+  const getTimeOfDayColor = (tod: string) =>
+    TIME_OF_DAY.find(t => t.key === tod)?.color || COLORS.primary;
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine | null>(null);
   const [isRunning, setIsRunning] = useState(false);
@@ -245,7 +230,7 @@ export default function TimerScreen() {
 
   const progress = totalSeconds > 0 ? Math.min(elapsedSeconds / totalSeconds, 1) : 0;
   const remaining = Math.max(totalSeconds - elapsedSeconds, 0);
-
+  const styles = getStyles(COLORS);
   if (selectedRoutine) {
     const color = getTimeOfDayColor(selectedRoutine.timeOfDay);
     return (
@@ -383,7 +368,7 @@ export default function TimerScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (COLORS: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background, padding: 20 },
   header: { marginTop: 50, marginBottom: 24 },
   subtitle: { fontSize: 13, color: COLORS.textLight, marginBottom: 2 },
