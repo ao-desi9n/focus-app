@@ -2,19 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { Alert, Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-const COLORS = {
-  background: '#0F0F14',
-  card: '#1A1A22',
-  primary: '#7C5CFF',
-  primaryLight: '#9D85FF',
-  text: '#F2F2F7',
-  textLight: '#8E8E9A',
-  border: '#2A2A35',
-  success: '#00D9A5',
-  coin: '#FFB84D',
-  coinBg: '#2A2418',
-};
+import { useTheme } from '../theme';
 
 const MAX_LEVEL = 20;
 const STREAK_ITEMS = [
@@ -72,6 +60,7 @@ const drawAnimal = (): Animal => {
 };
 
 export default function CharacterScreen() {
+    const { theme: COLORS } = useTheme();
   const [currentAnimalId, setCurrentAnimalId] = useState<string>('dog');
   const [unlockedAnimals, setUnlockedAnimals] = useState<string[]>(['dog']);
   const [level, setLevel] = useState(1);
@@ -191,7 +180,7 @@ export default function CharacterScreen() {
     await AsyncStorage.setItem('currentAnimalId', animalId);
     setCurrentAnimalId(animalId);
   };
-
+const styles = getStyles(COLORS);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -354,7 +343,7 @@ export default function CharacterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const getStyles = (COLORS: any) => StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background, padding: 20 },
   header: { marginTop: 50, marginBottom: 20 },
   subtitle: { fontSize: 13, color: COLORS.textLight, marginBottom: 2 },
